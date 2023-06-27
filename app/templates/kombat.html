@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Talana Kombat JRPG </title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.12.9/dist/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+
+    <!-- jquery confirm -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+    <style>
+        .alert-hidden{
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container pb-3">
+        <h1>Talana Kombat JRPG </h1>
+        <p>intrucciones:</p>
+        <p>Talana Kombat es un juego donde 2 personajes se enfrentan hasta la muerte. Cada personaje tiene 2 golpes especiales que se ejecutan con una combinación de movimientos + 1 botón de golpe</p>
+        
+        <img src="{{ url_for('static_files', filename='img.png') }}" alt="">
+        <hr>
+        <p>
+            <form action="">
+                <div class="row">
+                    <div class="form-group col-md-3">
+                        <label for="movimientos">Cantidad movimientos</label>
+                        <input type="number" class="form-control" id="movimientos" name="movimientos">
+                        <small id="emailHelp" class="form-text text-muted">Debes agregar solo números.</small>
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="golpes">Cantidad golpes</label>
+                        <input type="number" class="form-control" id="golpes" name="golpes">
+                        <small id="emailHelp" class="form-text text-muted">Debes agregar solo números.</small>
+                    </div>
+                    <div class="form-group col-md-3 pt-4" style="margin-top: 8px;">
+                        <button type="button" class="btn btn-primary" id="add_cant_combination">Crear golpes y movimientos</button>
+                    </div>
+                </div>
+            </form>
+
+
+            <br><hr><br>
+            <div class="row">
+                <div class="col-md-6 text-center">Player1</div>
+                <div class="col-md-6 text-center">Player2</div>
+            </div>
+            <div class="row" id="">
+                <div class="col-md-6 text-center" id="p1_combination">
+                    <div class="row m-2">
+
+                    </div>
+                </div>
+                <div class="col-md-6 text-center" id="p2_combination">
+                    <div class="row m-2">
+
+                    </div>
+                </div>
+            </div>
+            <br>
+            <hr>
+            <br>
+            <div class="row text-center">
+                <div class="col-md-12">
+                    <button type="button" class="btn btn-primary" id="init_fight">A pelear!!!</button>
+                </div>
+            </div>
+
+        </p>
+        <div class="alert alert-success alert-hidden" id="alert-hidden" role="alert">
+            This is a success alert—check it out!
+        </div>
+    </div>
+</body>
+
+<script>
+$(document).ready(function(){
+    $("#add_cant_combination").click(function(){
+        let p1 = $("#movimientos").val();
+        let p2 = $("#golpes").val();
+
+        if(p1.length === 0){
+            $.alert({
+                title: 'Error!',
+                content: 'Los movimientos no deben ser menor a 0',
+            });
+            return;
+        }
+
+        if(p2.length === 0){
+            $.alert({
+                title: 'Error!',
+                content:  'Los golpes no deben ser menor a 0',
+            });
+            return;
+        }
+
+        if(p1 === p2){
+            for (let i = 1; i <= p1; i++) {
+                let input_p1 = "<div class='row m-2'>"+
+                            "<div class='form-group col-md-6'>"+
+                            "<label for='movimientos'>movimiento</label>"+
+                            "<input type='text' class='form-control' id='p1_m"+i+"' name='p1_m"+i+"'>"+
+                            "</div>"+
+                            "<div class='form-group col-md-6'>"+
+                            "<label for='golpes'>golpe</label>"+
+                            "<input type='text' class='form-control' id='p1_g"+i+"' name='p1_g"+i+"'>"+
+                            "</div>"+
+                            " </div>";
+                $("#p1_combination").append(input_p1);
+
+                let input_p2 = "<div class='row m-2'>"+
+                            "<div class='form-group col-md-6'>"+
+                            "<label for='movimientos'>movimiento</label>"+
+                            "<input type='text' class='form-control' id='p2_m"+i+"' name='p2_m"+i+"'>"+
+                            "</div>"+
+                            "<div class='form-group col-md-6'>"+
+                            "<label for='golpes'>golpe</label>"+
+                            "<input type='text' class='form-control' id='p2_g"+i+"' name='p2_g"+i+"'>"+
+                            "</div>"+
+                            " </div>";
+                $("#p2_combination").append(input_p2);
+
+                $("#movimientos").val("");
+                $("#golpes").val("");
+            }
+        }else{
+            $.alert({
+                title: 'Error!',
+                content: 'La cantidad de movimientos y golpes deben ser iguales!',
+            });
+            return;
+        }
+    });
+
+    $("#init_fight").click(function(){
+
+        var crate_json = {}
+        crate_json['player1'] = {}
+        crate_json['player2'] = {}
+
+
+        var p1_m = [];
+        var p1_g = [];
+        var p2_m = [];
+        var p2_g = [];
+
+        $('input[id^=p1_m]').each(function( index ) {
+            p1_m.push(this.value)
+        });
+        crate_json['player1']['movimientos'] = p1_m;
+
+        $('input[id^=p1_g]').each(function( index ) {
+            p1_g.push(this.value)
+        });
+        crate_json['player1']['golpes'] = p1_g;
+
+        $('input[id^=p2_m]').each(function( index ) {
+            p2_m.push(this.value)
+        });
+        crate_json['player2']['movimientos'] = p2_m;
+
+        $('input[id^=p2_g]').each(function( index ) {
+            p2_g.push(this.value)
+        });
+        crate_json['player2']['golpes'] = p2_g;
+
+        // Endpoint al que se realizará la solicitud POST
+        const endpoint = 'http://127.0.0.1:5000/create-combat';
+
+        // Realizar la solicitud POST utilizando Axios
+        axios.post(endpoint, crate_json)
+            .then(response => {
+                let cadena = ""
+                response.data['fight'].forEach(function(value) {
+                    cadena += "- "+value+"<br>";
+                });
+                $("#alert-hidden").html(cadena).css("display", "block")
+            })
+            .catch(error => {
+                // Ocurrió un error durante la solicitud
+                console.error('Error en la solicitud:', error.message);
+            });
+    })
+});
+</script>
+</html>
